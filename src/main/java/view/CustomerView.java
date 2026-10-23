@@ -54,4 +54,34 @@ public class CustomerView {
     public void showMessage(String message){
         System.out.println(message);
     }
+
+    public void askShowId() {
+        System.out.print("Enter Show ID: ");
+    }
+
+    public void askSeatNumbers() {
+        System.out.print("Enter seat numbers separated by commas (e.g. A1,A2): ");
+    }
+
+    public String getPaymentMethod() {
+        System.out.println("\nSelect Payment Method:");
+        System.out.println("1. UPI");
+        System.out.println("2. Card");
+        System.out.println("3. Cash");
+        System.out.print("Enter your choice: ");
+
+        String input = scanner.nextLine().trim();
+
+        switch (input) {
+            case "1":
+                return "UPI";
+            case "2":
+                return "CARD";
+            case "3":
+                return "CASH";
+            default:
+                showMessage("Invalid Payment Choice...");
+                return null;
+        }
+    }
 }

@@ -11,6 +11,7 @@ public class Show {
     private LocalTime showTime;
     private double baseTicketPrice;
     private Screen screen;
+    private int movieId;
 
     public Show(int showId, LocalDate showDate, LocalTime showTime, double baseTicketPrice, Screen screen) {
         this.showId = showId;
@@ -37,6 +38,10 @@ public class Show {
         return screen;
     }
 
+    public void setScreen(Screen screen) {
+        this.screen = screen;
+    }
+
     public int getShowId() {
         return showId;
     }
@@ -53,6 +58,14 @@ public class Show {
         return baseTicketPrice;
     }
 
+    public int getMovieId() {
+        return movieId;
+    }
+
+    public void setMovieId(int movieId) {
+        this.movieId = movieId;
+    }
+
     @Override
     public String toString() {
         return "Show{" +
@@ -60,6 +73,7 @@ public class Show {
                 ", showDate=" + showDate +
                 ", showTime=" + showTime +
                 ", baseTicketPrice=" + baseTicketPrice +
+                ", movieId=" + movieId +
                 '}';
     }
 }

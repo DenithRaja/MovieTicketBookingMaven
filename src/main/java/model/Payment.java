@@ -6,6 +6,8 @@ public class Payment {
     private double amount;
     private String paymentMethod;
     private String status;
+    private double refundAmount;
+    private boolean simulateFailure = false;
 
     public Payment(int paymentId, double amount, String paymentMethod, String status) {
         this.paymentId = paymentId;
@@ -23,13 +25,13 @@ public class Payment {
         if (paymentMethod == null || paymentMethod.isEmpty()) {
             return false;
         }
-    
+
         return true;
     }
 
     public boolean processPayment() {
 
-        if (!validatePaymentDetails()) {
+        if (simulateFailure || !validatePaymentDetails()) {
             status = "FAILED";
             return false;
         }
@@ -44,11 +46,17 @@ public class Payment {
 
     public boolean refundPayment(double refundAmount) {
 
+        if (status == null || !status.equalsIgnoreCase("COMPLETED")) {
+            return false;
+        }
+
         if (refundAmount <= 0 || refundAmount > amount) {
             return false;
         }
 
+        this.refundAmount = refundAmount;
         status = "REFUNDED";
+
         return true;
     }
 
@@ -77,6 +85,14 @@ public class Payment {
         return status;
     }
 
+    public double getRefundAmount() {
+        return refundAmount;
+    }
+
+    public void setSimulateFailure(boolean simulateFailure) {
+        this.simulateFailure = simulateFailure;
+    }
+
     @Override
     public String toString() {
         return "Payment{"+
@@ -84,6 +100,7 @@ public class Payment {
                 ", amount=" + amount+
                 ", paymentMethod='" + paymentMethod + '\''+
                 ", status='" + status + '\''+
+                ", refundAmount= '" + refundAmount + '\''+
                 "}";
     }
 }

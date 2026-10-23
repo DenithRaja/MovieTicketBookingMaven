@@ -37,7 +37,7 @@ public class Booking {
         bookingSeats.add(bookingSeat);
     }
 
-    public double calculateTotal(){
+    public double   calculateTotal(){
         double total = 0;
         for (BookingSeat bookingSeat : bookingSeats){
             total += bookingSeat.getPrice();
@@ -64,6 +64,10 @@ public class Booking {
 
     public String getStatus() {
         return status;
+    }
+
+    public List<BookingSeat> getBookingSeats() {
+        return bookingSeats;
     }
 
     @Override

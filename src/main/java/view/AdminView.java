@@ -137,6 +137,11 @@ public class AdminView {
         return scanner.nextInt();
     }
 
+    public int getTheatreId() {
+        System.out.print("Enter Theatre ID: ");
+        return scanner.nextInt();
+    }
+
     public void showMessage(String message){
         System.out.println(message);
     }

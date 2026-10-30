@@ -1,136 +1,246 @@
 package controller;
 
-import dao.ScreenDAO;
-import model.Screen;
-import dao.TheatreDAO;
-import model.Theatre;
-import dao.MovieDAO;
 import model.Movie;
+import model.Screen;
+import model.Seat;
+import model.Show;
+import model.Theatre;
+import service.MovieService;
+import service.ScreenService;
+import service.SeatService;
+import service.ShowService;
+import service.TheatreService;
 import view.AdminView;
 
-public class AdminController {
-    private AdminView adminView;
-    private MovieDAO movieDAO;
-    private TheatreDAO theatreDAO;
-    private ScreenDAO screenDAO;
+import java.util.List;
 
-    public AdminController(AdminView adminView, MovieDAO movieDAO, TheatreDAO theatreDAO, ScreenDAO screenDAO) {
+public class AdminController {
+
+    private final AdminView adminView;
+    private final TheatreService theatreService;
+    private final ScreenService screenService;
+    private final SeatService seatService;
+    private final MovieService movieService;
+    private final ShowService showService;
+
+    public AdminController(
+            AdminView adminView,
+            TheatreService theatreService,
+            ScreenService screenService,
+            SeatService seatService,
+            MovieService movieService,
+            ShowService showService
+    ) {
         this.adminView = adminView;
-        this.movieDAO = movieDAO;
-        this.theatreDAO = theatreDAO;
-        this.screenDAO = screenDAO;
+        this.theatreService = theatreService;
+        this.screenService = screenService;
+        this.seatService = seatService;
+        this.movieService = movieService;
+        this.showService = showService;
     }
 
     public void start() {
         while (true) {
             adminView.showAdminMenu();
-
             int choice = adminView.getChoice();
 
             switch (choice) {
-                case 1:
-                    addMovie();
-                    break;
-
-                case 2:
-                    updateMovie();
-                    break;
-
-                case 3:
-                    removeMovie();
-                    break;
-
-                case 4:
-                    addTheatre();
-                    break;
-
-                case 5:
-                    addScreen();
-                    break;
-
-                case 6:
-                    adminView.showMessage("Add Seat.");
-                    break;
-
-                case 7:
-                    adminView.showMessage("Schedule Show.");
-                    break;
-
-                case 8:
-                    adminView.showMessage("Cancel Show.");
-                    break;
-
-                case 9:
+                case 1 -> addMovie();
+                case 2 -> updateMovie();
+                case 3 -> removeMovie();
+                case 4 -> viewAllMovies();
+                case 5 -> searchMovie();
+                case 6 -> addTheatre();
+                case 7 -> addScreen();
+                case 8 -> addSeat();
+                case 9 -> scheduleShow();
+                case 10 -> cancelShow();
+                case 11 -> {
                     adminView.showMessage("Logging out...");
                     return;
-
-                default:
-                    adminView.showMessage(
-                            "Invalid choice. Please select 1-9."
-                    );
+                }
+                default -> adminView.showMessage(
+                        "Invalid choice. Please select 1-11."
+                );
             }
         }
     }
 
-    private void addMovie(){
+    private void addMovie() {
         Movie movie = adminView.getMovieDetails();
 
-        if (movieDAO.add(movie)){
-            adminView.showMessage("Movie added successfully!..");
-        }
-        else{
-            adminView.showMessage("Failed to add movie.");
+        try {
+            if (movieService.addMovie(movie)) {
+                adminView.showMessage("Movie added successfully!");
+            } else {
+                adminView.showMessage("Failed to add movie.");
+            }
+        } catch (IllegalArgumentException e) {
+            adminView.showMessage(
+                    "Failed to add movie: " + e.getMessage()
+            );
         }
     }
 
-    private void updateMovie(){
+    private void updateMovie() {
         Movie movie = adminView.getMovieDetails();
 
-        if(movieDAO.update(movie)){
-            adminView.showMessage("Movie updated successfully");
-        }
-        else{
-            adminView.showMessage("Failed to update movie..Movie ID may not exist");
+        try {
+            if (movieService.updateMovie(movie)) {
+                adminView.showMessage("Movie updated successfully.");
+            } else {
+                adminView.showMessage("Failed to update movie.");
+            }
+        } catch (IllegalArgumentException e) {
+            adminView.showMessage(
+                    "Failed to update movie: " + e.getMessage()
+            );
         }
     }
 
-    private void removeMovie(){
-        adminView.showMessage("Enter the Movie ID to remove : ");
+    private void removeMovie() {
+        adminView.showMessage("Enter the Movie ID to remove:");
         int movieId = adminView.getMovieId();
 
-        if (movieDAO.deleteById(movieId)){
-            adminView.showMessage("Movie successfully removed..");
-        }
-        else{
-            adminView.showMessage("Failed to remove movie. Movie ID may not exist.");
+        try {
+            if (movieService.removeMovie(movieId)) {
+                adminView.showMessage("Movie successfully removed.");
+            } else {
+                adminView.showMessage("Failed to remove movie.");
+            }
+        } catch (IllegalArgumentException e) {
+            adminView.showMessage(
+                    "Failed to remove movie: " + e.getMessage()
+            );
         }
     }
 
-    private void addTheatre(){
+    private void viewAllMovies() {
+        List<Movie> movies = movieService.getAllMovies();
+
+        if (movies.isEmpty()) {
+            adminView.showMessage("No movies found.");
+            return;
+        }
+
+        for (Movie movie : movies) {
+            adminView.showMessage(movie.toString());
+        }
+    }
+
+    private void searchMovie() {
+        adminView.showMessage("Enter title or keyword to search:");
+        String keyword = adminView.getMovieDetails().getTitle();
+
+        try {
+            List<Movie> results =
+                    movieService.searchMoviesByTitle(keyword);
+
+            if (results.isEmpty()) {
+                adminView.showMessage("No matching movies found.");
+            } else {
+                for (Movie movie : results) {
+                    adminView.showMessage(movie.toString());
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            adminView.showMessage(
+                    "Search failed: " + e.getMessage()
+            );
+        }
+    }
+
+    private void addTheatre() {
         Theatre theatre = adminView.getTheatreDetails();
 
-        if (theatreDAO.add(theatre)){
-            adminView.showMessage("Theatre added successfully");
-        }
-        else{
-            adminView.showMessage("Failed to add theatre. Theatre ID may not exist");
+        try {
+            if (theatreService.addTheatre(theatre)) {
+                adminView.showMessage("Theatre added successfully.");
+            } else {
+                adminView.showMessage("Failed to add theatre.");
+            }
+        } catch (IllegalArgumentException e) {
+            adminView.showMessage(
+                    "Failed to add theatre: " + e.getMessage()
+            );
         }
     }
 
-    private void addScreen(){
+    private void addScreen() {
         Screen screen = adminView.getScreenDetails();
         int theatreId = adminView.getTheatreId();
 
-        try{
-            if (screenDAO.add(screen, theatreId)){
-                adminView.showMessage("Screen added successfully");
+        try {
+            if (screenService.addScreen(screen, theatreId)) {
+                adminView.showMessage("Screen added successfully.");
+            } else {
+                adminView.showMessage("Failed to add screen.");
             }
-            else{
-                adminView.showMessage("Failed to add screen");
-            }
-        }catch (IllegalArgumentException e){
-            adminView.showMessage("Failed to add screen " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            adminView.showMessage(
+                    "Failed to add screen: " + e.getMessage()
+            );
         }
     }
 
+    private void addSeat() {
+        Seat seat = adminView.getSeatDetails();
+        int screenId = adminView.getScreenId();
+
+        try {
+            if (seatService.addSeat(seat, screenId)) {
+                adminView.showMessage("Seat added successfully!");
+            } else {
+                adminView.showMessage("Failed to add seat.");
+            }
+        } catch (IllegalArgumentException e) {
+            adminView.showMessage(
+                    "Failed to add seat: " + e.getMessage()
+            );
+        }
+    }
+
+    private void scheduleShow() {
+        try {
+            int screenId = adminView.getScreenId();
+
+            Screen screen = screenService
+                    .findScreenById(screenId)
+                    .orElse(null);
+
+            if (screen == null) {
+                adminView.showMessage("Screen not found.");
+                return;
+            }
+
+            Show show = adminView.getShowDetails(screen);
+            int movieId = adminView.getMovieId();
+
+            if (showService.scheduleShow(show, movieId, screenId)) {
+                adminView.showMessage("Show scheduled successfully!");
+            } else {
+                adminView.showMessage("Failed to schedule show.");
+            }
+        } catch (IllegalArgumentException e) {
+            adminView.showMessage(
+                    "Failed to schedule show: " + e.getMessage()
+            );
+        }
+    }
+
+    private void cancelShow() {
+        int showId = adminView.getShowId();
+
+        try {
+            if (showService.cancelShow(showId)) {
+                adminView.showMessage("Show cancelled successfully!");
+            } else {
+                adminView.showMessage("Failed to cancel show.");
+            }
+        } catch (IllegalArgumentException e) {
+            adminView.showMessage(
+                    "Failed to cancel show: " + e.getMessage()
+            );
+        }
+    }
 }

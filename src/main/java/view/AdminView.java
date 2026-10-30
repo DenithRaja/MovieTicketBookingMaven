@@ -1,13 +1,19 @@
 package view;
 
-import model.*;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Scanner;
+import model.Movie;
+import model.Screen;
+import model.Seat;
+import model.Show;
+import model.Theatre;
+
 
 public class AdminView {
-    private Scanner scanner;
+
+    private final Scanner scanner;
+
 
     public AdminView(Scanner scanner) {
         this.scanner = scanner;
@@ -20,120 +26,148 @@ public class AdminView {
         System.out.println("1. Add Movie");
         System.out.println("2. Update Movie");
         System.out.println("3. Remove Movie");
-        System.out.println("4. Add Theatre");
-        System.out.println("5. Add Screen");
-        System.out.println("6. Add Seat");
-        System.out.println("7. Schedule Show");
-        System.out.println("8. Cancel Show");
-        System.out.println("9. Logout");
+        System.out.println("4. View All Movies");
+        System.out.println("5. Search Movie");
+        System.out.println("6. Add Theatre");
+        System.out.println("7. Add Screen");
+        System.out.println("8. Add Seat");
+        System.out.println("9. Schedule Show");
+        System.out.println("10. Cancel Show");
+        System.out.println("11. Logout");
     }
 
-    public int getChoice(){
+    public int getChoice() {
         return scanner.nextInt();
     }
 
-    public int getMovieId(){
+    public int getMovieId() {
+        System.out.print("Enter Movie ID: ");
         return scanner.nextInt();
     }
 
     public Movie getMovieDetails() {
+        int movieId;
+        String title;
+        String genre;
+        String language;
+        int duration;
+
         scanner.nextLine();
 
         System.out.print("Enter Movie ID: ");
-        int movieId = scanner.nextInt();
+        movieId = scanner.nextInt();
 
         scanner.nextLine();
 
         System.out.print("Enter Movie Title: ");
-        String title = scanner.nextLine();
+        title = scanner.nextLine();
 
         System.out.print("Enter Genre: ");
-        String genre = scanner.nextLine();
+        genre = scanner.nextLine();
 
         System.out.print("Enter Language: ");
-        String language = scanner.nextLine();
+        language = scanner.nextLine();
 
         System.out.print("Enter Duration: ");
-        int duration = scanner.nextInt();
+        duration = scanner.nextInt();
 
         return new Movie(movieId, title, genre, language, duration);
     }
 
     public Theatre getTheatreDetails() {
+        int theatreId;
+        String name;
+        String location;
+
         scanner.nextLine();
 
         System.out.print("Enter Theatre ID: ");
-        int theatreId = scanner.nextInt();
+        theatreId = scanner.nextInt();
 
         scanner.nextLine();
 
         System.out.print("Enter Theatre Name: ");
-        String name = scanner.nextLine();
+        name = scanner.nextLine();
 
         System.out.print("Enter Location: ");
-        String location = scanner.nextLine();
+        location = scanner.nextLine();
 
         return new Theatre(theatreId, name, location);
     }
 
-    public Screen getScreenDetails(){
+    public Screen getScreenDetails() {
+        int screenId;
+        String screenName;
+        int capacity;
+
         scanner.nextLine();
 
         System.out.println("Enter Screen ID: ");
-        int screenId = scanner.nextInt();
+        screenId = scanner.nextInt();
 
         scanner.nextLine();
 
         System.out.println("Enter Screen Name: ");
-        String screenName = scanner.nextLine();
+        screenName = scanner.nextLine();
 
         System.out.println("Enter Total Capacity: ");
-        int capacity = scanner.nextInt();
+        capacity = scanner.nextInt();
 
-        return new Screen(screenId,screenName,capacity);
+        return new Screen(screenId, screenName, capacity);
     }
 
     public Seat getSeatDetails() {
+        int seatId;
+        String seatNumber;
+        String seatRow;
+        String seatType;
+
         scanner.nextLine();
 
         System.out.print("Enter Seat ID: ");
-        int seatId = scanner.nextInt();
+        seatId = scanner.nextInt();
 
         scanner.nextLine();
 
         System.out.print("Enter Seat Number: ");
-        String seatNumber = scanner.nextLine();
+        seatNumber = scanner.nextLine();
 
         System.out.print("Enter Seat Row: ");
-        String seatRow = scanner.nextLine();
+        seatRow = scanner.nextLine();
 
         System.out.print("Enter Seat Type: ");
-        String seatType = scanner.nextLine();
+        seatType = scanner.nextLine();
 
         return new Seat(seatId, seatNumber, seatRow, seatType);
     }
 
     public Show getShowDetails(Screen screen) {
+        int showId;
+        LocalDate showDate;
+        LocalTime showTime;
+        double baseTicketPrice;
+
         scanner.nextLine();
 
         System.out.print("Enter Show ID: ");
-        int showId = scanner.nextInt();
+        showId = scanner.nextInt();
 
         scanner.nextLine();
 
         System.out.print("Enter Show Date (yyyy-MM-dd): ");
-        LocalDate showDate = LocalDate.parse(scanner.nextLine());
+        showDate = LocalDate.parse(scanner.nextLine());
 
         System.out.print("Enter Show Time (HH:mm): ");
-        LocalTime showTime = LocalTime.parse(scanner.nextLine());
+        showTime = LocalTime.parse(scanner.nextLine());
 
         System.out.print("Enter Ticket Price: ");
-        double baseTicketPrice = scanner.nextDouble();
+        baseTicketPrice = scanner.nextDouble();
 
         return new Show(showId, showDate, showTime, baseTicketPrice, screen);
     }
 
-    public int getShowId(){
+    public int getShowId() {
+        System.out.print("Enter Show ID: ");
         return scanner.nextInt();
     }
 
@@ -142,7 +176,12 @@ public class AdminView {
         return scanner.nextInt();
     }
 
-    public void showMessage(String message){
+    public int getScreenId() {
+        System.out.print("Enter Screen ID: ");
+        return scanner.nextInt();
+    }
+
+    public void showMessage(String message) {
         System.out.println(message);
     }
 }

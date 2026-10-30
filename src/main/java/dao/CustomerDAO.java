@@ -11,4 +11,7 @@ public interface CustomerDAO {
     boolean deleteById(int customerId);
     Optional<Customer> findById(int customerId);
     List<Customer> findAll();
+    Optional<Customer> findByEmail(String email);
+    Optional<Customer> findByUsername(String username);
+    boolean existsByUsername(String username);
 }

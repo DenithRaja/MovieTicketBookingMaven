@@ -4,8 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+
 public class CustomerView {
+
     private Scanner scanner;
+
 
     public CustomerView(Scanner scanner) {
         this.scanner = scanner;
@@ -24,35 +27,31 @@ public class CustomerView {
         System.out.println("7. Logout");
     }
 
-    public int getChoice(){
+    public int getChoice() {
         return scanner.nextInt();
     }
 
-    public String getMovieSearchText(){
+    public String getMovieSearchText() {
         scanner.nextLine();
         return scanner.nextLine();
     }
 
-    public int getMovieId(){
+    public int getMovieId() {
         return scanner.nextInt();
     }
 
-    public int getShowId(){
+    public int getShowId() {
         return scanner.nextInt();
     }
 
-    public List<String> getSeatNumbers(){
+    public List<String> getSeatNumbers() {
         scanner.nextLine();
         String input = scanner.nextLine();
         return Arrays.asList(input.split(","));
     }
 
-    public int getBookingId(){
+    public int getBookingId() {
         return scanner.nextInt();
-    }
-
-    public void showMessage(String message){
-        System.out.println(message);
     }
 
     public void askShowId() {
@@ -72,16 +71,18 @@ public class CustomerView {
 
         String input = scanner.nextLine().trim();
 
-        switch (input) {
-            case "1":
-                return "UPI";
-            case "2":
-                return "CARD";
-            case "3":
-                return "CASH";
-            default:
+        return switch (input) {
+            case "1" -> "UPI";
+            case "2" -> "CARD";
+            case "3" -> "CASH";
+            default -> {
                 showMessage("Invalid Payment Choice...");
-                return null;
-        }
+                yield null;
+            }
+        };
+    }
+
+    public void showMessage(String message) {
+        System.out.println(message);
     }
 }

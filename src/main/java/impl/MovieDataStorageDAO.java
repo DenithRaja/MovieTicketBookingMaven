@@ -1,18 +1,18 @@
-package dao;
+package impl;
 
+import dao.MovieDAO;
 import model.Movie;
-import storage.MovieDataStorage;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 public class MovieDataStorageDAO implements MovieDAO {
-    private final MovieDataStorage storage;
 
-    public MovieDataStorageDAO(MovieDataStorage storage) {
-        this.storage = storage;
-    }
+    private final Map<Integer, Movie> movies = new LinkedHashMap<>();
 
     @Override
     public boolean add(Movie movie) {
@@ -21,11 +21,12 @@ public class MovieDataStorageDAO implements MovieDAO {
         }
 
         int movieId = movie.getMovieId();
-        if (storage.movies.containsKey(movieId)) {
+
+        if (movies.containsKey(movieId)) {
             throw new IllegalArgumentException("Movie ID already exists");
         }
 
-        storage.movies.put(movieId, movie);
+        movies.put(movieId, movie);
         return true;
     }
 
@@ -36,44 +37,53 @@ public class MovieDataStorageDAO implements MovieDAO {
         }
 
         int movieId = movie.getMovieId();
-        if (!storage.movies.containsKey(movieId)) {
+
+        if (!movies.containsKey(movieId)) {
             throw new IllegalArgumentException("Movie not found");
         }
 
-        storage.movies.put(movieId, movie);
+        movies.put(movieId, movie);
         return true;
     }
 
     @Override
     public boolean deleteById(int movieId) {
-        if (storage.movies.remove(movieId) == null) {
+        if (movies.remove(movieId) == null) {
             throw new IllegalArgumentException("Movie not found");
         }
+
         return true;
     }
 
     @Override
     public Optional<Movie> findById(int movieId) {
-        Movie movie = storage.movies.get(movieId);
-        if (movie == null) {
-            return Optional.empty();
-        }
-        return Optional.of(movie);
+        return Optional.ofNullable(movies.get(movieId));
     }
 
     @Override
     public List<Movie> findAll() {
-        return new ArrayList<>(storage.movies.values());
+        return new ArrayList<>(movies.values());
     }
 
     @Override
     public List<Movie> searchByTitle(String title) {
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Search title cannot be null or blank"
+            );
+        }
+
+        String searchTitle = title.toLowerCase(Locale.ROOT);
         List<Movie> matchingMovies = new ArrayList<>();
-        for (Movie movie : storage.movies.values()) {
-            if (movie.getTitle().toLowerCase().contains(title.toLowerCase())) {
+
+        for (Movie movie : movies.values()) {
+            String movieTitle = movie.getTitle().toLowerCase(Locale.ROOT);
+
+            if (movieTitle.contains(searchTitle)) {
                 matchingMovies.add(movie);
             }
         }
+
         return matchingMovies;
     }
 }

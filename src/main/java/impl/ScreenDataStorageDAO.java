@@ -1,17 +1,23 @@
-package dao;
 
+package impl;
+
+import dao.ScreenDAO;
+import dao.TheatreDAO;
 import model.Screen;
-import storage.MovieDataStorage;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class ScreenDataStorageDAO implements ScreenDAO {
-    private final MovieDataStorage storage;
 
-    public ScreenDataStorageDAO(MovieDataStorage storage) {
-        this.storage = storage;
+    private final Map<Integer, Screen> screens = new LinkedHashMap<>();
+    private final TheatreDAO theatreDAO;
+
+    public ScreenDataStorageDAO(TheatreDAO theatreDAO) {
+        this.theatreDAO = theatreDAO;
     }
 
     @Override
@@ -19,17 +25,20 @@ public class ScreenDataStorageDAO implements ScreenDAO {
         if (screen == null) {
             throw new IllegalArgumentException("Screen cannot be null");
         }
-        if (!storage.theatres.containsKey(theatreId)) {
+
+        if (theatreDAO.findById(theatreId).isEmpty()) {
             throw new IllegalArgumentException("Theatre not found");
         }
 
         int screenId = screen.getScreenId();
-        if (storage.screens.containsKey(screenId)) {
+
+        if (screens.containsKey(screenId)) {
             throw new IllegalArgumentException("Screen ID already exists");
         }
 
         screen.setTheatreId(theatreId);
-        storage.screens.put(screenId, screen);
+        screens.put(screenId, screen);
+
         return true;
     }
 
@@ -40,39 +49,39 @@ public class ScreenDataStorageDAO implements ScreenDAO {
         }
 
         int screenId = screen.getScreenId();
-        if (!storage.screens.containsKey(screenId)) {
+
+        if (!screens.containsKey(screenId)) {
             throw new IllegalArgumentException("Screen not found");
         }
 
-        storage.screens.put(screenId, screen);
+        screens.put(screenId, screen);
         return true;
     }
 
     @Override
     public boolean deleteById(int screenId) {
-        if (storage.screens.remove(screenId) == null) {
+        if (screens.remove(screenId) == null) {
             throw new IllegalArgumentException("Screen not found");
         }
+
         return true;
     }
 
     @Override
     public Optional<Screen> findById(int screenId) {
-        Screen screen = storage.screens.get(screenId);
-        if (screen == null) {
-            return Optional.empty();
-        }
-        return Optional.of(screen);
+        return Optional.ofNullable(screens.get(screenId));
     }
 
     @Override
     public List<Screen> findByTheatreId(int theatreId) {
-        List<Screen> screens = new ArrayList<>();
-        for (Screen screen : storage.screens.values()) {
+        List<Screen> matchingScreens = new ArrayList<>();
+
+        for (Screen screen : screens.values()) {
             if (screen.getTheatreId() == theatreId) {
-                screens.add(screen);
+                matchingScreens.add(screen);
             }
         }
-        return screens;
+
+        return matchingScreens;
     }
 }

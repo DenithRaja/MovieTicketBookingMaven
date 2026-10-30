@@ -1,17 +1,28 @@
-package dao;
 
+package impl;
+
+import dao.MovieDAO;
+import dao.ScreenDAO;
+import dao.ShowDAO;
 import model.Show;
-import storage.MovieDataStorage;
+import model.Screen;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class ShowDataStorageDAO implements ShowDAO {
-    private final MovieDataStorage storage;
 
-    public ShowDataStorageDAO(MovieDataStorage storage) {
-        this.storage = storage;
+    private final Map<Integer, Show> shows = new LinkedHashMap<>();
+
+    private final MovieDAO movieDAO;
+    private final ScreenDAO screenDAO;
+
+    public ShowDataStorageDAO(MovieDAO movieDAO, ScreenDAO screenDAO) {
+        this.movieDAO = movieDAO;
+        this.screenDAO = screenDAO;
     }
 
     @Override
@@ -19,21 +30,28 @@ public class ShowDataStorageDAO implements ShowDAO {
         if (show == null) {
             throw new IllegalArgumentException("Show cannot be null");
         }
-        if (!storage.movies.containsKey(movieId)) {
+
+        if (movieDAO.findById(movieId).isEmpty()) {
             throw new IllegalArgumentException("Movie not found");
         }
-        if (!storage.screens.containsKey(screenId)) {
+
+        Optional<Screen> screenOptional = screenDAO.findById(screenId);
+
+        if (screenOptional.isEmpty()) {
             throw new IllegalArgumentException("Screen not found");
         }
 
         int showId = show.getShowId();
-        if (storage.shows.containsKey(showId)) {
+
+        if (shows.containsKey(showId)) {
             throw new IllegalArgumentException("Show ID already exists");
         }
 
         show.setMovieId(movieId);
-        show.setScreen(storage.screens.get(screenId));
-        storage.shows.put(showId, show);
+        show.setScreen(screenOptional.get());
+
+        shows.put(showId, show);
+
         return true;
     }
 
@@ -44,61 +62,68 @@ public class ShowDataStorageDAO implements ShowDAO {
         }
 
         int showId = show.getShowId();
-        if (!storage.shows.containsKey(showId)) {
+
+        if (!shows.containsKey(showId)) {
             throw new IllegalArgumentException("Show not found");
         }
-        if (!storage.movies.containsKey(show.getMovieId())) {
+
+        if (movieDAO.findById(show.getMovieId()).isEmpty()) {
             throw new IllegalArgumentException("Movie not found");
         }
-        if (show.getScreen() == null || !storage.screens.containsKey(show.getScreen().getScreenId())) {
+
+        if (show.getScreen() == null
+                || screenDAO.findById(show.getScreen().getScreenId()).isEmpty()) {
             throw new IllegalArgumentException("Screen not found");
         }
 
-        storage.shows.put(showId, show);
+        shows.put(showId, show);
+
         return true;
     }
 
     @Override
     public boolean deleteById(int showId) {
-        if (storage.shows.remove(showId) == null) {
+        if (shows.remove(showId) == null) {
             throw new IllegalArgumentException("Show not found");
         }
+
         return true;
     }
 
     @Override
     public Optional<Show> findById(int showId) {
-        Show show = storage.shows.get(showId);
-        if (show == null) {
-            return Optional.empty();
-        }
-        return Optional.of(show);
+        return Optional.ofNullable(shows.get(showId));
     }
 
     @Override
     public List<Show> findByMovieId(int movieId) {
-        List<Show> shows = new ArrayList<>();
-        for (Show show : storage.shows.values()) {
+        List<Show> matchingShows = new ArrayList<>();
+
+        for (Show show : shows.values()) {
             if (show.getMovieId() == movieId) {
-                shows.add(show);
+                matchingShows.add(show);
             }
         }
-        return shows;
+
+        return matchingShows;
     }
 
     @Override
     public List<Show> findByScreenId(int screenId) {
-        List<Show> shows = new ArrayList<>();
-        for (Show show : storage.shows.values()) {
-            if (show.getScreen() != null && show.getScreen().getScreenId() == screenId) {
-                shows.add(show);
+        List<Show> matchingShows = new ArrayList<>();
+
+        for (Show show : shows.values()) {
+            if (show.getScreen() != null
+                    && show.getScreen().getScreenId() == screenId) {
+                matchingShows.add(show);
             }
         }
-        return shows;
+
+        return matchingShows;
     }
 
     @Override
     public List<Show> findAll() {
-        return new ArrayList<>(storage.shows.values());
+        return new ArrayList<>(shows.values());
     }
 }

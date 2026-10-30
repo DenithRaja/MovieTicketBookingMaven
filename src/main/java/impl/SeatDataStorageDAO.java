@@ -1,17 +1,25 @@
-package dao;
 
+package impl;
+
+import dao.ScreenDAO;
+import dao.SeatDAO;
 import model.Seat;
-import storage.MovieDataStorage;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class SeatDataStorageDAO implements SeatDAO {
-    private final MovieDataStorage storage;
 
-    public SeatDataStorageDAO(MovieDataStorage storage) {
-        this.storage = storage;
+    private final Map<Integer, Seat> seats = new LinkedHashMap<>();
+    private final Map<Integer, Integer> seatScreenIds = new LinkedHashMap<>();
+
+    private final ScreenDAO screenDAO;
+
+    public SeatDataStorageDAO(ScreenDAO screenDAO) {
+        this.screenDAO = screenDAO;
     }
 
     @Override
@@ -19,17 +27,20 @@ public class SeatDataStorageDAO implements SeatDAO {
         if (seat == null) {
             throw new IllegalArgumentException("Seat cannot be null");
         }
-        if (!storage.screens.containsKey(screenId)) {
+
+        if (screenDAO.findById(screenId).isEmpty()) {
             throw new IllegalArgumentException("Screen not found");
         }
 
         int seatId = seat.getSeatId();
-        if (storage.seats.containsKey(seatId)) {
+
+        if (seats.containsKey(seatId)) {
             throw new IllegalArgumentException("Seat ID already exists");
         }
 
-        storage.seats.put(seatId, seat);
-        storage.seatScreenIds.put(seatId, screenId);
+        seats.put(seatId, seat);
+        seatScreenIds.put(seatId, screenId);
+
         return true;
     }
 
@@ -40,45 +51,47 @@ public class SeatDataStorageDAO implements SeatDAO {
         }
 
         int seatId = seat.getSeatId();
-        if (!storage.seats.containsKey(seatId)) {
+
+        if (!seats.containsKey(seatId)) {
             throw new IllegalArgumentException("Seat not found");
         }
 
-        storage.seats.put(seatId, seat);
+        seats.put(seatId, seat);
+
         return true;
     }
 
     @Override
     public boolean deleteById(int seatId) {
-        if (!storage.seats.containsKey(seatId)) {
+        if (!seats.containsKey(seatId)) {
             throw new IllegalArgumentException("Seat not found");
         }
 
-        storage.seats.remove(seatId);
-        storage.seatScreenIds.remove(seatId);
+        seats.remove(seatId);
+        seatScreenIds.remove(seatId);
+
         return true;
     }
 
     @Override
     public Optional<Seat> findById(int seatId) {
-        Seat seat = storage.seats.get(seatId);
-        if (seat == null) {
-            return Optional.empty();
-        }
-        return Optional.of(seat);
+        return Optional.ofNullable(seats.get(seatId));
     }
 
     @Override
     public List<Seat> findByScreenId(int screenId) {
-        List<Seat> seats = new ArrayList<>();
-        for (Integer seatId : storage.seatScreenIds.keySet()) {
-            if (storage.seatScreenIds.get(seatId) == screenId) {
-                Seat seat = storage.seats.get(seatId);
+        List<Seat> matchingSeats = new ArrayList<>();
+
+        for (Map.Entry<Integer, Integer> entry : seatScreenIds.entrySet()) {
+            if (entry.getValue() == screenId) {
+                Seat seat = seats.get(entry.getKey());
+
                 if (seat != null) {
-                    seats.add(seat);
+                    matchingSeats.add(seat);
                 }
             }
         }
-        return seats;
+
+        return matchingSeats;
     }
 }

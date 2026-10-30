@@ -21,6 +21,15 @@ public class Booking {
         this.show = show;
     }
 
+    public Booking(
+            LocalDateTime bookingDate,
+            double totalAmount,
+            String status,
+            Show show) {
+
+        this(0, bookingDate, totalAmount, status, show);
+    }
+
     public void confirmBooking(){
         status = "BOOKED";
     }
@@ -68,6 +77,28 @@ public class Booking {
 
     public List<BookingSeat> getBookingSeats() {
         return bookingSeats;
+    }
+
+
+    public void setBookingId(int bookingId) {
+        this.bookingId = bookingId;
+    }
+
+    public void setBookingDate(LocalDateTime bookingDate) {
+        this.bookingDate = bookingDate;
+    }
+
+    public void setTotalAmount(double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+
+    public void setShow(Show show) {
+        this.show = show;
     }
 
     @Override
